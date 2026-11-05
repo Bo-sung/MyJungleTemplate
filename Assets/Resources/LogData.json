@@ -1,5 +1,5 @@
 {
-  "note": "분석 로그(JSONL) 운영 설정. 게임 규칙 테이블이 아니라 로그 기록계의 스위치이고, 전송 설정은 LogKit이 원본이다. enabled=false면 분석 파일을 만들지 않는다.",
+  "note": "분석 로그(JSONL) 운영 설정. 게임 규칙 테이블이 아니라 로그 기록 체서의 스위치이고, 전송 설정은 LogKit이 원본이다. enabled=false면 분석 파일을 만들지 않는다.",
   "enabled": true,
   "bufferLines": 16,
   "retentionDays": 14

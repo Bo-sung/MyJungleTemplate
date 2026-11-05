@@ -34,3 +34,6 @@
 - `FlowTableData` — `scenes`(씬 진행 경로: `scene` → `nextScene`, `restartScene`).
 
 둘 다 샘플 값이다. 프로젝트를 시작하면 실제 도메인(Gameplay/Enemies/Stage… 같은 묶음)으로 바꾸되 위 4계층 방식은 그대로 유지한다.
+
+## 테이블이 아닌 JSON
+`Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.

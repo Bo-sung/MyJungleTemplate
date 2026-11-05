@@ -27,6 +27,7 @@
 - `Assets/Resources/Tables/<데이터 클래스명>.json` → 순수 직렬화 DTO(`GameTables.cs`, `GameTableRecords.cs`) → 조회 인덱스·싱글톤(`TableManager`) → 검증·파생 계산(`GameTableRules`)의 4계층을 따른다.
 - 밸런스·동작 시간·판정 수치는 테이블이 원본이다. 같은 값을 코드 기본값·폴백·씬에 다시 저장하지 않고, UI 수치도 같은 테이블에서 읽는다. 씬 배치·자산 참조·내부 알고리즘 상수는 제외한다.
 - 키는 순서 무관 식별자(씬 이름·자산 GUID·id)를 쓰고 배열 순서에 의미를 두지 않는다. 노출용 목록은 결정적 정렬(기본 항목 우선, id 오름차순)을 쓴다.
+- `Assets/Resources/LogData.json`은 도메인 테이블이 아닌 분석 로그 운영 설정이다. TableManager로 읽지 않고 `TelemetryLog`가 직접 읽는다(`Docs/TELEMETRY.md`).
 - 테이블 오류는 항목별로 모아서 보고하고 `IsValid`로 제공한다. 데이터를 사용하는 초기화는 `RequireValid()`로 차단해 잘못된 기본값으로 동작하지 않게 한다.
 - JSON을 저장하면 `TableEditor`가 캐시를 무너뜨린다. 수동 갱신은 `Tools/MyJG/Tables/Reload Tables`(플레이 중 제외).
 - 새 테이블을 추가할 때: 데이터 클래스를 만들고 → `GameTables.cs`에 `[Serializable]` 정의 → `TableManager` 생성자에서 `Load<T>(ref loaded)` 한 줄 추가 → `GameTableRules.Validate`에 참조 무결성 검사 추가. 로더나 경로를 개별적으로 만들지 않는다.
@@ -42,7 +43,7 @@
 - 해금 상태는 씬 로컬인 `UpgradeManager`가 보유한다. 전역 테이블·정적 컬렉션에 저장하지 않는다.
 
 ## 씬 로컬 자원
-- GameObject 풀과 씬 실행 상태는 `SceneServices.For<T>()`가 씬 안에 만든 호스트가 소유한다(ScenePool이 대표적 예다. 전역 싱글톤·테이블에 씬 상태를 두지 않는다.
+- GameObject 풀과 씬 실행 상태는 `SceneServices.For<T>()`가 씬 안에 만든 호스트가 소유한다(ScenePool이 대표적 예). 전역 싱글톤·테이블에 씬 상태를 두지 않는다.
 - `Rent`로 대여한 것은 `Return`으로 반납한다. 반납 오브젝트는 Destroy하지 않고 비활성화해 재사용하고, 씬 언로드와 함께 사라진다.
 - HUD처럼 미리 배치한 슬롯 풀은 코드가 표시·색·시간만 제어하고 런타임 UI 생성을 하지 않는다.
 
@@ -56,19 +57,19 @@
 
 ## UI 구조·콘텐츠 제작
 - UI는 MVP로 나눈다. Model(게임 상태)·View(프리팹에 배치된 표시)·Presenter(표시 갱신)를 분리하고, View 스크립트를 코드에서 생성하지 않는다.
-- 메시·오브젝트·레벨 구성은 프로시저럴 생성 대신 프리팹·씬 에디터 기반으로 만든다. 런타임 Instantiate/새 오브젝트 생성은 게임플레이 스폰(적·탄환·효예·풀에서 꺼내는 오브젝트)만 허용한다.
+- 메시·오브젝트·레벨 구성은 프로시저럴 생성 대신 프리팹·씬 에디터 기반으로 만든다. 런타임 Instantiate/새 오브젝트 생성은 게임플레이 스폰(적·탄환·효과·풀에서 꺼내는 오브젝트)만 허용한다.
 
 ## 코딩 스타일
 - 중괄호는 BSD(Allman) 방식이고 여는 중괄호는 새 줄이다. `if`·`for` 같은 한 줄짜리 블록을 만들지 않고 중괄호를 생략하지 않는다.
 - 메서드·클래스·프로퍼티는 PascalCase, 필드·로컬 변수는 camelCase(CamelCase). 너무 길어 가독성이 떨어질 때만 snake_case를 허용한다. 타입·스코프 접두사 같은 헝가리안 표기법은 쓰지 않는다.
 - **메서드·런타임 파라미터에는 `_` 접두사를 쓴다**(`void SetDamage(int _damage)`). 필드와 이름이 겹쳐도 `this.` 없이 구분된다.
 - `const`와 변하지 않는 정적 데이터는 UPPER_SNAKE(`const int MAX_LENGTH = 100;`), 재대입이 있는 정적 상태는 camelCase(`static TableManager instance`)로 구분한다.
-- 커밋 전 Visual Studio `Ctrl+K, R`(정렬)을 적용해들인 상태로커밇한다.
+- 커밋 전 Visual Studio `Ctrl+K, R`(정렬)을 적용해 들인 상태로 커밋한다.
 
 ## 로그·분석
 - 기록 경로를 둘로 나눈다: 분석 사건은 `TelemetryLog`(JSONL, `persistentDataPath/Telemetry`), 콘솔·오류·지표는 LogKit. 같은 사건을 두 경로에 다시 기록하지 않는다(`Docs/TELEMETRY.md`).
 - `sessionId`·`sequence`·게임 시간 시계는 `TelemetryLog`의 것이다. 개별 시스템이 자체 `runId`나 `Time.time` 기준 시계를 만들지 않는다.
-- 집적 요약은 `WriteSummary(summaryId, payload)`로 남기고 `revision`이 가장 큰 레코드만 정답으로 본다. 고빈도 사건은 개별 줄로 남기지 말고 집계 후 요약한다.
+- 집계 요약은 `WriteSummary(summaryId, payload)`로 남기고 `revision`이 가장 큰 레코드만 정답으로 본다. 고빈도 사건은 개별 줄로 남기지 말고 집계 후 요약한다.
 - 게임 사건의 발행은 `GameEvents`, 파일로 쓰는 것은 `TelemetryRecorder` 한 곳이다. 이벤트 이름은 `TelemetryEvents` 상수가 원본이고 필드 대응은 `TelemetryPayload`가 한다.
 - 서버 주소·키를 저장소에 두지 않는다. 전송 설정의 원본은 LogKit Inspector/`GameLogger.Configure`/빌드 환경변수다.
 

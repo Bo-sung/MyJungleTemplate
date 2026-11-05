@@ -13,10 +13,10 @@
 
 1. **단일 소유자**: `sessionId`·`sequence`·게임 시간 시계는 `TelemetryLog`만 만든다. 개별 시스템이 자체 `runId`나 `Time.time`/`DateTime`을 섞어 별도 시계를 만들면 판 대조가 깨진다.
 2. **`sequence`**: 한 줄 쓸 때마다 1씩 증가한다. 파일 안에서 누락·중복이 없어야 하며, 분석 쪽은 이것으로 순서를 되짚는다.
-3. **`time`**: `FixedUpdate` 누적 게임 시간. 일시정지·선택 화면에서 멈추는 기준을 이 값 하나로 통일한다. 월·실시간이 필요하면 같은 줄의 `timestampUtc`를 함께 본다.
+3. **`time`**: `FixedUpdate` 누적 게임 시간. 일시정지·선택 화면에서 멈추는 기준을 이 값 하나로 통일한다. 벽시계 시간이 필요하면 같은 줄의 `timestampUtc`를 함께 본다.
 4. **`summaryId` / `revision`**: 요약은 `WriteSummary`로 남기고 `revision`은 자동 증가한다. 같은 `summaryId`에서는 **revision이 가장 큰 레코드만** 채택한다(부분 요약 재사용 금지).
-5. **경계**: `session_start`로 시작하고 `session_end`로 끝난다. 종료 이후 쓰기()`Write`는 경고 한 번 후 무시되므로, 강제 종료가 아닌 한 종료 기록 뒤에 줄이 붙지 않는다. 종료는 `LogKitSetup.BeforeShutdown`과 `OnApplicationQuit`에서 들어오지만 **종료 표시를 먼저 세워** 이중 기록을 막는다.
-6. **`dataJson`**: payload JSON 문자열을 escaped로 넣는다(LogKit `LogEntry.dataJson`과 같은 형태). payload는 `[Serializable]` 구조체만 직렬화된다(JsonUtility는 익명 타입을 처리하지 못한다). 필드 이름·뜻을 바꾸지 말고 새 필드를 추가한다.
+5. **경계**: `session_start`로 시작하고 `session_end`로 끝난다. 종료 이후에는 `Write`가 경고 한 번 후 무시되므로, 강제 종료가 아닌 한 종료 기록 뒤에 줄이 붙지 않는다. 종료는 `LogKitSetup.BeforeShutdown`과 `OnApplicationQuit`에서 들어오지만 **종료 표시를 먼저 세워** 이중 기록을 막는다.
+6. **`dataJson`**: payload JSON을 이스케이프한 문자열로 넣는다(LogKit `LogEntry.dataJson`과 같은 형태). payload는 `[Serializable]` 구조체만 직렬화된다(JsonUtility는 익명 타입을 처리하지 못한다). 필드 이름·뜻을 바꾸지 말고 새 필드를 추가한다.
 
 ```csharp
 // 이벤트 한 줄(이름은 TelemetryEvents에 상수로 둔다)
@@ -45,8 +45,8 @@ TelemetryLog.WriteSummary($"wave:{wave.index}", wave);   // revision 1, 2, 3 ...
 - **폴더 열기**: `Tools > MyJG > Reveal Telemetry Folder`.
 - 파일 계약이 통과해도 **값의 정확성은 확인하지 못한다**. 보상·피해·진행이 실제로 맞는지는 아래 항목을 플레이로 확인한다(사용자 담당).
   - 판 시작·종료, 재시작 시 새 sessionId, 종료 후 추가 기록 없음
-  - 웨이브·상점·해금처럼 요약을 다시 쓰는 지점에서 revision이 increasing
-  - 씬 이동·패널 온·오택이 이벤트 이름 그대로 박혀 있는지
+  - 웨이브·상점·해금처럼 요약을 다시 쓰는 지점에서 revision이 계속 커지는지
+  - 씬 이동·패널 온·오프가 이벤트 이름 그대로 박혀 있는지
 
 ## 템플릿에 없는 것
 
