@@ -1,0 +1,29 @@
+# 줄바꿈 규약. 유니티 YAML·바이너리는 변환하지 않는다(재직렬화·차이 폭주 방지).
+* text=auto
+
+*.cs   text
+*.json text
+*.md   text
+*.cginc text
+*.shader text
+*.inputactions text
+
+*.unity  -text
+*.prefab -text
+*.asset  -text
+*.mat    -text
+*.physicMaterial -text
+*.controller -text
+*.meta   -text
+*.anim   -text
+*.png    -text
+*.jpg    -text
+*.jpeg   -text
+*.tga    -text
+*.psd    -text
+*.wav    -text
+*.mp3    -text
+*.fbx    -text
+*.dll    -text
+*.exe    -text
+*.zip    -text
