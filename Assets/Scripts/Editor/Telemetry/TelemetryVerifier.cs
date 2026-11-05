@@ -115,7 +115,7 @@ public static class TelemetryVerifier
                 {
                     issues.Add($"summaryId '{line.summaryId}' revision={line.revision}이 이전 값({seen}) 이하입니다.");
                 }
-                revisions[line.summaryId] = line.revision > seen ? line.revision : seen + 1;
+                revisions[line.summaryId] = Math.Max(seen, line.revision);
             }
 
             counts.TryGetValue(line.eventName, out int count);
