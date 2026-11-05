@@ -18,7 +18,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 - **기동 검사**: 실행 인자 `-projectSmoke` → 테이블 검증·풀 왕복·해금/스냅샷 복원·이벤트 왕복·분석 로그 세션 계약까지 확인 후 `MYJG_SMOKE_PASS/FAIL`과 종료 코드.
 
 ## 프로젝트를 시작할 때 할 일
-1. 샘플 데이터를 지운다: `GameplayTableData.json`의 `sample.*` 해금 항목과 예시 필드, `FlowTableData.json`의 SampleScene 경로를 실제 씬 구조로 바꾼다.
+1. 씬을 `Preload → Title → Game`로 만들고 Build Settings에 등록한 뒤, `FlowTableData.json`의 SampleScene 경로를 실제 씬 이름으로 바꾼다(씬 이름이 진행 경로의 키). 샘플 데이터(`GameplayTableData.json`의 `sample.*` 항목·예시 필드)도 함께 지운다.
 2. `GameLayers`와 TagManager 레이어를 실제 게임에 맞게 고치고 `Tools/MyJG/Validate Project`로 확인한다.
 3. 메뉴·로그의 `MyJG` 접두사를 프로젝트명으로 바꾼다(에디터 스크립트 내 문자열, `MYJG_SMOKE_*`).
 4. `IUpgrade` 구현체를 만들어 `UpgradeManager.Register`로 연결하고, 패널은 `PanelBase`를 상속해 `startOpen`을 명시한다.
