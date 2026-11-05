@@ -26,13 +26,49 @@ public static class TelemetryLog
     static Session session;
     static bool warnedUnavailable;
 
-    public static bool IsOpen => session != null && !session.closed;
-    public static string SessionId => session == null ? string.Empty : session.id;
-    public static long Sequence => session == null ? 0L : session.sequence;
+    public static bool IsOpen
+    {
+        get
+        {
+            return session != null && !session.closed;
+        }
+    }
+    public static string SessionId
+    {
+        get
+        {
+            return session == null ? string.Empty : session.id;
+        }
+    }
+    public static long Sequence
+    {
+        get
+        {
+            return session == null ? 0L : session.sequence;
+        }
+    }
     // FixedUpdate로 쌓는 게임 시간. 일시정지·선택 화면에서 멈추는 기준을 이 값 하나로 통일한다.
-    public static double GameTime => session == null ? 0.0 : session.gameTime;
-    public static string FilePath => session == null ? string.Empty : session.path;
-    public static string FolderPath => Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+    public static double GameTime
+    {
+        get
+        {
+            return session == null ? 0.0 : session.gameTime;
+        }
+    }
+    public static string FilePath
+    {
+        get
+        {
+            return session == null ? string.Empty : session.path;
+        }
+    }
+    public static string FolderPath
+    {
+        get
+        {
+            return Path.Combine(Application.persistentDataPath, FOLDER_NAME);
+        }
+    }
 
     // 기동 시 한 번 열린다. 이미 열려 있으면 아무것도 하지 않는다(재호출 안전).
     public static void Open(string _reason)

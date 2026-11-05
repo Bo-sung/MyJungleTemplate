@@ -11,10 +11,10 @@ using UnityEngine;
 // 파일 계약만 본다. 보상·피해처럼 값의 정확성은 실제 플레이 확인이 필요하다(Docs/TELEMETRY.md).
 public static class TelemetryVerifier
 {
-    public const string Menu = "Tools/MyJG/Verify Telemetry File";
-    public const string RevealMenu = "Tools/MyJG/Reveal Telemetry Folder";
+    public const string MENU = "Tools/MyJG/Verify Telemetry File";
+    public const string REVEAL_MENU = "Tools/MyJG/Reveal Telemetry Folder";
 
-    [MenuItem(Menu)]
+    [MenuItem(MENU)]
     static void VerifyMenuItem()
     {
         string report = Verify();
@@ -22,7 +22,7 @@ public static class TelemetryVerifier
         EditorUtility.DisplayDialog("분석 로그 검증", report, "확인");
     }
 
-    [MenuItem(RevealMenu)]
+    [MenuItem(REVEAL_MENU)]
     static void RevealFolder()
     {
         Directory.CreateDirectory(TelemetryLog.FolderPath);

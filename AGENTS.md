@@ -64,6 +64,7 @@
 - 메서드·클래스·프로퍼티는 PascalCase, 필드·로컬 변수는 camelCase(CamelCase). 너무 길어 가독성이 떨어질 때만 snake_case를 허용한다. 타입·스코프 접두사 같은 헝가리안 표기법은 쓰지 않는다.
 - **메서드·런타임 파라미터에는 `_` 접두사를 쓴다**(`void SetDamage(int _damage)`). 필드와 이름이 겹쳐도 `this.` 없이 구분된다.
 - `const`와 변하지 않는 정적 데이터는 UPPER_SNAKE(`const int MAX_LENGTH = 100;`), 재대입이 있는 정적 상태는 camelCase(`static TableManager instance`)로 구분한다.
+- 메서드 파라미터와 지역 변수는 위 표기가 달라 구분되므로 헝가리안 표기처럼 보이지 않는다. 템플릿이 제공한 코드도 이 규칙을 따르므로, 예전 표기(`(string name)` 형태)를 발견하면 같은 작업에서 고친다.
 - 커밋 전 Visual Studio `Ctrl+K, R`(정렬)을 적용해 들인 상태로 커밋한다.
 
 ## 로그·분석

@@ -12,8 +12,14 @@ using UnityEngine;
 public sealed class TableManager
 {
     static TableManager instance;
-    public static TableManager Instance => instance ??= new TableManager();
-    const string ResourceFolder = "Tables/";
+    public static TableManager Instance
+    {
+        get
+        {
+            return instance ??= new TableManager();
+        }
+    }
+    const string RESOURCE_FOLDER = "Tables/";
 
     public GameplayTableData Gameplay { get; }
     public FlowTableData Flow { get; }
@@ -44,56 +50,93 @@ public sealed class TableManager
     }
 
     // 사슬의 첫 해금 id. 없으면 빈 문자열.
-    public string FirstUpgradeId => Gameplay.sequence == null ? string.Empty : Gameplay.sequence.firstUpgrade ?? string.Empty;
+    public string FirstUpgradeId
+    {
+        get
+        {
+            return Gameplay.sequence == null ? string.Empty : Gameplay.sequence.firstUpgrade ?? string.Empty;
+        }
+    }
     // UI 등에 노출하는 해금 목록.
     public IReadOnlyList<UpgradeData> Upgrades { get; }
-    public IReadOnlyList<SceneLinkData> Scenes => Flow.scenes ?? Array.Empty<SceneLinkData>();
+    public IReadOnlyList<SceneLinkData> Scenes
+    {
+        get
+        {
+            return Flow.scenes ?? Array.Empty<SceneLinkData>();
+        }
+    }
 
-    public static TableManager Initialize() => Instance;
+    public static TableManager Initialize()
+    {
+        return Instance;
+    }
 
     // 오류를 모두 보고한 뒤, 필수 데이터를 사용하는 기능만 명시적으로 초기화를 거부한다.
     public TableManager RequireValid()
     {
-        if (!IsValid) throw new InvalidOperationException("게임 테이블이 올바르지 않습니다. 먼저 출력된 테이블 오류를 수정하세요.");
+        if (!IsValid)
+        {
+            throw new InvalidOperationException("게임 테이블이 올바르지 않습니다. 먼저 출력된 테이블 오류를 수정하세요.");
+        }
         return this;
     }
 
-    public UpgradeData Upgrade(string id) => Find(upgrades, id, "해금");
-    public SceneLinkData Scene(string scene) => Find(scenes, scene, "씬 진행");
-    public bool TryGetScene(string scene, out SceneLinkData link)
+    public UpgradeData Upgrade(string _id)
     {
-        if (!string.IsNullOrEmpty(scene) && scenes.TryGetValue(scene, out link)) return true;
-        link = null;
+        return Find(upgrades, _id, "해금");
+    }
+    public SceneLinkData Scene(string _scene)
+    {
+        return Find(scenes, _scene, "씬 진행");
+    }
+    public bool TryGetScene(string _scene, out SceneLinkData _link)
+    {
+        if (!string.IsNullOrEmpty(_scene) && scenes.TryGetValue(_scene, out _link))
+        {
+            return true;
+        }
+        _link = null;
         return false;
     }
-    public bool TryGetUpgrade(string id, out UpgradeData upgrade)
+    public bool TryGetUpgrade(string _id, out UpgradeData _upgrade)
     {
-        if (!string.IsNullOrEmpty(id) && upgrades.TryGetValue(id, out upgrade)) return true;
-        upgrade = null;
+        if (!string.IsNullOrEmpty(_id) && upgrades.TryGetValue(_id, out _upgrade))
+        {
+            return true;
+        }
+        _upgrade = null;
         return false;
     }
 
     // nextScene 미참조 등 진행 경로를 따라갈 때 쓰는 빈 값 안전 조회.
-    public string NextSceneOf(string scene) => TryGetScene(scene, out var link) ? link.nextScene ?? string.Empty : string.Empty;
-    public string RestartSceneOf(string scene) => TryGetScene(scene, out var link)
-        ? string.IsNullOrEmpty(link.restartScene) ? link.scene : link.restartScene
-        : scene;
-
-    // 모르는 키면 기본값으로 조용히 동작하지 않고 예외로 막는다.
-    static T Find<T>(Dictionary<string, T> index, string id, string table) where T : class
+    public string NextSceneOf(string _scene)
     {
-        if (!string.IsNullOrEmpty(id) && index.TryGetValue(id, out var value)) return value;
-        throw new KeyNotFoundException($"{table} 테이블에 '{id}' 키가 없습니다.");
+        return TryGetScene(_scene, out var link) ? link.nextScene ?? string.Empty : string.Empty;
+    }
+    public string RestartSceneOf(string _scene)
+    {
+        return TryGetScene(_scene, out var link) ? string.IsNullOrEmpty(link.restartScene) ? link.scene : link.restartScene : _scene;
     }
 
-    static T Load<T>(ref bool valid) where T : class, new()
+    // 모르는 키면 기본값으로 조용히 동작하지 않고 예외로 막는다.
+    static T Find<T>(Dictionary<string, T> _index, string _id, string _table) where T : class
     {
-        string path = ResourceFolder + typeof(T).Name;
+        if (!string.IsNullOrEmpty(_id) && _index.TryGetValue(_id, out var value))
+        {
+            return value;
+        }
+        throw new KeyNotFoundException($"{_table} 테이블에 '{_id}' 키가 없습니다.");
+    }
+
+    static T Load<T>(ref bool _valid) where T : class, new()
+    {
+        string path = RESOURCE_FOLDER + typeof(T).Name;
         var asset = Resources.Load<TextAsset>(path);
         if (!asset)
         {
             Debug.LogError($"테이블 누락: Resources/{path}.json");
-            valid = false;
+            _valid = false;
             return new T();
         }
         try
@@ -102,29 +145,48 @@ public sealed class TableManager
 #if UNITY_EDITOR
             // 편집 도구의 연속 실행도 에셋 자동 새로고침 전 최신 원본을 읽는다.
             string diskPath = EditorAssetPath<T>();
-            if (System.IO.File.Exists(diskPath)) json = System.IO.File.ReadAllText(diskPath);
+            if (System.IO.File.Exists(diskPath))
+            {
+                json = System.IO.File.ReadAllText(diskPath);
+            }
 #endif
             var table = JsonUtility.FromJson<T>(json);
-            if (table != null) return table;
+            if (table != null)
+            {
+                return table;
+            }
             Debug.LogError($"테이블 내용이 null입니다: {path}");
         }
         catch (Exception error) when (error is ArgumentException || error is System.IO.IOException || error is UnauthorizedAccessException)
         {
             Debug.LogError($"테이블 읽기 실패: {path}: {error.Message}");
         }
-        valid = false;
+        _valid = false;
         return new T();
     }
 
     // 기존 데이터를 수정하는 테스트는 전후에 호출해 다음 테스트로 변경을 전파하지 않는다.
-    public static void Reload() => instance = null;
+    public static void Reload()
+    {
+        instance = null;
+    }
 
 #if UNITY_EDITOR
-    public static string EditorAssetPath<T>() => "Assets/Resources/" + ResourceFolder + typeof(T).Name + ".json";
-    public static void ReloadAfterTableEdit() { Reload(); Initialize(); }
+    public static string EditorAssetPath<T>()
+    {
+        return "Assets/Resources/" + RESOURCE_FOLDER + typeof(T).Name + ".json";
+    }
+    public static void ReloadAfterTableEdit()
+    {
+        Reload();
+        Initialize();
+    }
 #endif
 
     // Enter Play Mode Options로 도메인 리로드를 꺼도 정적 상태는 매 실행 초기화된다.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetStaticState() => instance = null;
+    static void ResetStaticState()
+    {
+        instance = null;
+    }
 }

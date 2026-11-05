@@ -11,39 +11,75 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class UpgradeManager : MonoBehaviour
 {
-    TableManager Tables => TableManager.Instance.RequireValid();
+    TableManager Tables
+    {
+        get
+        {
+            return TableManager.Instance.RequireValid();
+        }
+    }
     readonly HashSet<string> unlocked = new(StringComparer.Ordinal);
     readonly List<IUpgrade> effects = new();
     GameObject owner;
     string nextUpgrade;
 
     public event Action<UpgradeData> Granted;
-    public string NextUpgradeId => nextUpgrade;
-    public IEnumerable<string> UnlockedIds => unlocked;
-
-    public void Bind(GameObject target)
+    public string NextUpgradeId
     {
-        owner = target;
+        get
+        {
+            return nextUpgrade;
+        }
+    }
+    public IEnumerable<string> UnlockedIds
+    {
+        get
+        {
+            return unlocked;
+        }
+    }
+
+    public void Bind(GameObject _target)
+    {
+        owner = _target;
         Reapply();
     }
 
-    public void Register(IUpgrade effect)
+    public void Register(IUpgrade _effect)
     {
-        if (effect == null || effects.Contains(effect)) return;
-        effects.Add(effect);
-        if (IsUnlocked(effect.Id)) effect.Apply(owner);
+        if (_effect == null || effects.Contains(_effect))
+        {
+            return;
+        }
+        effects.Add(_effect);
+        if (IsUnlocked(_effect.Id))
+        {
+            _effect.Apply(owner);
+        }
     }
 
-    public bool IsUnlocked(string id) => !string.IsNullOrEmpty(id) && unlocked.Contains(id);
+    public bool IsUnlocked(string _id)
+    {
+        return !string.IsNullOrEmpty(_id) && unlocked.Contains(_id);
+    }
 
     // 이미 해금된 id를 다시 요청하면 false. 해금 시 effects.Apply → Granted 순으로 알린다.
-    public bool Grant(string id)
+    public bool Grant(string _id)
     {
-        var upgrade = Tables.Upgrade(id);          // 모르는 id는 예외로 막는다.
-        if (unlocked.Contains(upgrade.id)) return false;
+        var upgrade = Tables.Upgrade(_id);          // 모르는 id는 예외로 막는다.
+        if (unlocked.Contains(upgrade.id))
+        {
+            return false;
+        }
         unlocked.Add(upgrade.id);
         RefreshNextUpgrade();
-        foreach (var effect in effects) if (effect.Id == upgrade.id) effect.Apply(owner);
+        foreach (var effect in effects)
+        {
+            if (effect.Id == upgrade.id)
+            {
+                effect.Apply(owner);
+            }
+        }
         Debug.Log($"해금: {Presentation.Name(upgrade)} ({upgrade.id})", this);
         Granted?.Invoke(upgrade);
         GameEvents.RaiseUpgradeGranted(upgrade);
@@ -53,7 +89,10 @@ public sealed class UpgradeManager : MonoBehaviour
     // 사슬의 다음 해금을 해금한다. 목록이 소진되면 false.
     public bool GrantNext()
     {
-        if (string.IsNullOrEmpty(nextUpgrade)) RefreshNextUpgrade();
+        if (string.IsNullOrEmpty(nextUpgrade))
+        {
+            RefreshNextUpgrade();
+        }
         return !string.IsNullOrEmpty(nextUpgrade) && Grant(nextUpgrade);
     }
 
@@ -66,20 +105,35 @@ public sealed class UpgradeManager : MonoBehaviour
     }
 
     // null이면 초기 상태. id 집합을 그대로 적용하고 효과를 다시 붙인다.
-    public void Restore(string[] snapshot)
+    public void Restore(string[] _snapshot)
     {
-        foreach (var effect in effects) effect.Remove(owner);
+        foreach (var effect in effects)
+        {
+            effect.Remove(owner);
+        }
         unlocked.Clear();
-        foreach (string id in snapshot ?? Array.Empty<string>())
-            unlocked.Add(Tables.Upgrade(id).id);      // 모르는 id는 예외로 막는다.
+        foreach (string id in _snapshot ?? Array.Empty<string>())
+        {
+            // 모르는 id는 예외로 막는다.
+            unlocked.Add(Tables.Upgrade(id).id);
+        }
         RefreshNextUpgrade();
         Reapply();
     }
 
     void Reapply()
     {
-        foreach (var effect in effects) effect.Remove(owner);
-        foreach (var effect in effects) if (IsUnlocked(effect.Id)) effect.Apply(owner);
+        foreach (var effect in effects)
+        {
+            effect.Remove(owner);
+        }
+        foreach (var effect in effects)
+        {
+            if (IsUnlocked(effect.Id))
+            {
+                effect.Apply(owner);
+            }
+        }
     }
 
     // nextUpgrade는 사슬에서 아직 해금되지 않은 첫 항목. 키로 따라가므로 배열 순서를 보지 않는다.
