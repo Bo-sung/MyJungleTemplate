@@ -7,7 +7,7 @@
 - 예시 수치와 예시 항목(GameplayTableData의 sample.* 항목 등)은 실제 규칙이 아니다. 시작과 함께 교체한다.
 
 ## 씬 구성
-- 빌드 씬 순서는 `Preload → Title → Game`을 기준으로 한다. Preload에서 테이블·에셋을 준비하고, Title은 진입·시작, Game은 본플레이만 담당하게 나누는 것을 권한다.
+- 빌드 씬 순서는 `Preload → Title → Game`을 기준으로 한다. Preload에서 테이블·에셋을 준비하고, Title은 진입·시작, Game은 본플레이만 담당하게 나누는 것을 권한다. 템플릿이 이 3개 씬을 만들어 Build Settings에 등록한 상태로 주며, 시작 씬은 Preload다.
 - 씬 이름이 키이며 진행 경로의 원본은 `FlowTableData.scenes`다(`nextScene`·`restartScene`). 배열 순서에 의존하지 않고, 빌드 씬 목록과 표가 어긋나면 `ProjectValidation`이 잡는다.
 
 ## 구조 규칙

@@ -8,6 +8,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 - **이벤트 허브**: `GameEvents`(struct 페이로드 4종: Run/Scene/Upgrade/Panel, 구독자 예외 격리, `NextId()` 진단 순번, 씬 진입 이벤트 자동 발행).
 - **확장 계약**: `IUpgrade`(Id/Apply/Remove) + `UpgradeManager`(Register/Grant/GrantNext/Capture/Restore, 씬 로컬 상태).
 - **씬 로컬 자원**: `SceneServices.For<T>()`(씬 안 호스트 생성) + `ScenePool`(key별 Rent/Return/prewarm, 씬과 함께 사라짐).
+- **씬 골격**: `Preload → Title → Game` 3개 씬을 만들고 Build Settings에 등록했다(시작 씬 = Preload). 진행 경로의 원본은 `FlowTableData.scenes`이고, ProjectSettings의 기본 씬도 Preload를 가리킨다. URP 샘플 씬(SampleScene)은 Game으로 흡수하고 제거했다.
 - **표기 단일 출처**: `Presentation`(EffectCategory 색·제목, 리치 텍스트 Accent/Dim/Heading, 테이블 description 원본 참조).
 - **UI 패널**: `PanelBase`(startOpen으로 시작 상태 명시, OnDisable 정리, `GameEvents.PanelVisibility` 발행).
 - **레이어**: `GameLayers`(7 Ground / 8 Obstacle / 9 Player / 10 Enemy / 11 Prop / 12 Weapon / 13 Projectile)와 TagManager.asset 등록 완료.
@@ -18,7 +19,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 - **기동 검사**: 실행 인자 `-projectSmoke` → 테이블 검증·풀 왕복·해금/스냅샷 복원·이벤트 왕복·분석 로그 세션 계약까지 확인 후 `MYJG_SMOKE_PASS/FAIL`과 종료 코드.
 
 ## 프로젝트를 시작할 때 할 일
-1. 씬을 `Preload → Title → Game`로 만들고 Build Settings에 등록한 뒤, `FlowTableData.json`의 SampleScene 경로를 실제 씬 이름으로 바꾼다(씬 이름이 진행 경로의 키). 샘플 데이터(`GameplayTableData.json`의 `sample.*` 항목·예시 필드)도 함께 지운다.
+1. 샘플 데이터를 지운다: `GameplayTableData.json`의 `sample.*` 해금 항목과 예시 필드, `FlowTableData.json`의 씬 이름(기본은 Preload·Title·Game). 실제 씬을 추가하면 Build Settings와 표 양쪽에 같은 이름으로 등록한다.
 2. `GameLayers`와 TagManager 레이어를 실제 게임에 맞게 고치고 `Tools/MyJG/Validate Project`로 확인한다.
 3. 메뉴·로그의 `MyJG` 접두사를 프로젝트명으로 바꾼다(에디터 스크립트 내 문자열, `MYJG_SMOKE_*`).
 4. `IUpgrade` 구현체를 만들어 `UpgradeManager.Register`로 연결하고, 패널은 `PanelBase`를 상속해 `startOpen`을 명시한다.
@@ -26,6 +27,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 
 ## 검증 · 미정
 - 검증: 23개 스크립트를 Unity 6000.3.22f1 어셈블리 참조로 Roslyn 컴파일 확인(에디터 / 플레이어 / 개발 빌드 3경우 모두 오류 없음). Play Mode 실행 확인은 하지 않았다(사용자 담당). LogKit git 패키지는 packages-lock.json에 resolved.
+- Preload·Title·Game 씬은 텍스트로 생성했다(SceneRoots까지 포함한 unity YAML). 에디터에서 처음 열 때 정상 뜨는지 확인이 필요하고, Game은 기존 URP 샘플 씬의 카메라·Directional Light·Global Volume을 그대로 들였다.
 - 코딩 스타일: 전 스크립트를 AGENTS 규칙(Allman, 파라미터 `_` 접두사, const UPPER_SNAKE, 한 줄 블록 금지)에 맞게 일괄 정리했다. 리터럴 문자열 안 텍스트와 이벤트/직렬화 필드 이름은 바꾸지 않았다.
 - 분석 파일의 서버 전송·수집기는 없다(JSONL은 LogKit 업로드 대상에 자동으로 포함되지 않음). 파일 생성과 계약 검증(`Verify Telemetry File`)까지 제공한다.
 - 씬 진행 상태의 판 단위 인계(장비·체력 이어받기)는 템플릿에 없다. 필요하면 명시적으로 추가한다.

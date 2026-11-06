@@ -62,20 +62,36 @@ public static class ProjectValidation
             info.Add("분석 로그 설정: Resources/LogData.json / 파일 위치 " + TelemetryLog.FolderPath);
         }
 
-        // 4) 빌드 씬 목록
-        int enabledScenes = 0;
+        // 4) 빌드 씬 목록과 진행 표 대조(빌드는 EditorBuildSettings를 따라하므로 어긋나면 로드하지 못한다)
+        var buildScenes = new List<string>();
         foreach (var scene in EditorBuildSettings.scenes)
+        {
             if (scene.enabled && !string.IsNullOrEmpty(scene.path))
             {
-                enabledScenes++;
+                buildScenes.Add(Path.GetFileNameWithoutExtension(scene.path));
             }
-        if (enabledScenes == 0)
+        }
+        if (buildScenes.Count == 0)
         {
             issues.Add("EditorBuildSettings에 활성 씬이 없습니다. BuildEntry가 시작 씬을 찾지 못합니다.");
         }
         else
         {
-            info.Add($"빌드 활성 씬 {enabledScenes}개");
+            info.Add($"빌드 활성 씬 {buildScenes.Count}개(시작: {buildScenes[0]})");
+            foreach (var link in tables.Scenes)
+            {
+                if (link != null && !buildScenes.Contains(link.scene))
+                {
+                    issues.Add($"진행 표의 씬 '{link.scene}'이 Build Settings에 없습니다. 게임이 해당 씬으로 이동하면 로드 실패합니다.");
+                }
+            }
+            foreach (string buildScene in buildScenes)
+            {
+                if (!tables.TryGetScene(buildScene, out _))
+                {
+                    info.Add($"빌드 씬 '{buildScene}'은(는) 진행 표에 없습니다. 단발·테스트 씬이면 정상입니다.");
+                }
+            }
         }
 
         // 5) GameLayers와 TagManager.asset의 레이어 이름 동기화

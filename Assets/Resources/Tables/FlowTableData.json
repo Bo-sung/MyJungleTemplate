@@ -1,11 +1,21 @@
 {
   "status": "template",
-  "note": "씬 진행 경로. 씬 이름이 키이며 배열 순서는 의미하지 않는다. nextScene이 비어 있으면 최종 씬.",
+  "note": "씬 진행 경로. 씬 이름이 키이며 배열 순서는 의미하지 않는다. nextScene이 비어 있으면 최종 씬. 빌드 씬 목록의 첫 항목이 시작 씬이다.",
   "scenes": [
     {
-      "scene": "SampleScene",
+      "scene": "Preload",
+      "nextScene": "Title",
+      "restartScene": "Preload"
+    },
+    {
+      "scene": "Title",
+      "nextScene": "Game",
+      "restartScene": "Title"
+    },
+    {
+      "scene": "Game",
       "nextScene": "",
-      "restartScene": "SampleScene"
+      "restartScene": "Game"
     }
   ]
 }
