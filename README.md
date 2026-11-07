@@ -15,7 +15,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 - **LogKit**: git 패키지(v0.7.0) 설치, `LogKitSetup`이 `LOGKIT_SERVER_URL`/`LOGKIT_UPLOAD_KEY` 환경변수를 기동 시 적용. Debug.Log 계열은 자동 수집·전송.
 - **분석 로그**: `TelemetryLog`가 sessionId·sequence·FixedUpdate 시간의 단일 소유자(JSONL은 `persistentDataPath/Telemetry`, LogKit 전송에 자동으로 포함되지 않음). `TelemetryRecorder`가 GameEvents를 구독해 한 곳에서 쓰고, 이벤트 이름·필드 원본은 `TelemetryEvents`/`TelemetryPayload`, 스위치는 `Resources/LogData.json`. 계약과 검증은 `Docs/TELEMETRY.md`.
 - **설정**: Active Input Handling = Both(신규 Input System만 사용 권장, Validate Project가 안내), Enter Play Mode Options = 도메인 리로드 해제(정적 초기화 규약 필수).
-- **도구**: `Tools/MyJG/Validate Project`(빈 스크립트·테이블·빌드 씬·레이어 동기화·입력 설정·LogData 유무), `Tools/MyJG/Verify Telemetry File`(최신 분석 파일의 session/sequence/revision 계약), `Tools/MyJG/Reveal Telemetry Folder`, `Tools/MyJG/Debug/Jump To Scene`, `Tools/MyJG/Build Windows (Development)`(활성 씬 사용 → `Artifacts/Windows`).
+- **도구**: `Tools/MyJG/Validate Project`(빈 스크립트·테이블·빌드 씬·레이어 동기화·입력 설정·LogData 유무), `Tools/MyJG/Verify Telemetry File`(최신 분석 파일의 session/sequence/revision 계약), `Tools/MyJG/Reveal Telemetry Folder`, `Tools/MyJG/Debug/Jump To Scene`, `Tools/MyJG/Build Windows (Development)`(활성 씬 사용 → `Artifacts/Windows`), `Tools/MyJG/Build Template Package`(유니티 템플릿 tgz 생성 + 루트 문서 주입, `Docs/TEMPLATE.md`).
 - **기동 검사**: 실행 인자 `-projectSmoke` → 테이블 검증·풀 왕복·해금/스냅샷 복원·이벤트 왕복·분석 로그 세션 계약까지 확인 후 `MYJG_SMOKE_PASS/FAIL`과 종료 코드.
 
 ## 프로젝트를 시작할 때 할 일
@@ -28,6 +28,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 ## 검증 · 미정
 - 검증: 23개 스크립트를 Unity 6000.3.22f1 어셈블리 참조로 Roslyn 컴파일 확인(에디터 / 플레이어 / 개발 빌드 3경우 모두 오류 없음). Play Mode 실행 확인은 하지 않았다(사용자 담당). LogKit git 패키지는 packages-lock.json에 resolved.
 - Preload·Title·Game 씬은 텍스트로 생성했다(SceneRoots까지 포함한 unity YAML). 에디터에서 처음 열 때 정상 뜨는지 확인이 필요하고, Game은 기존 URP 샘플 씬의 카메라·Directional Light·Global Volume을 그대로 들였다.
+- 템플릿 동작 확인: `unity templates create`는 ProjectData~에 Assets·Packages·ProjectSettings·Library만 담아 루트 문서가 빠지지만, ProjectData~에 넣은 루트 파일은 새 프로젝트 루트에 그대로 복사되는 것을 Probe 프로젝트로 확인했다(`Docs/TEMPLATE.md`). 생성 도구는 `TemplatePackTool`.
 - 코딩 스타일: 전 스크립트를 AGENTS 규칙(Allman, 파라미터 `_` 접두사, const UPPER_SNAKE, 한 줄 블록 금지)에 맞게 일괄 정리했다. 리터럴 문자열 안 텍스트와 이벤트/직렬화 필드 이름은 바꾸지 않았다.
 - 분석 파일의 서버 전송·수집기는 없다(JSONL은 LogKit 업로드 대상에 자동으로 포함되지 않음). 파일 생성과 계약 검증(`Verify Telemetry File`)까지 제공한다.
 - 씬 진행 상태의 판 단위 인계(장비·체력 이어받기)는 템플릿에 없다. 필요하면 명시적으로 추가한다.

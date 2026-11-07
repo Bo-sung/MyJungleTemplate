@@ -79,6 +79,7 @@
 - 기획·구현이 바뀌면 같은 작업에서 관련 항목만 갱신한다. 누적 일지, 날짜별 표, 긴 실행 설명, 도구 호출 기록은 만들지 않는다.
 - 확정 규칙, 현재 구현, 미정 사항, 중요한 검증·제약을 짧은 목록으로 유지한다. 수행하지 않은 구현·검증을 완료로 적지 않는다.
 - `Docs/TELEMETRY.md`는 기록 경로·세션 계약·설정·검증, `Docs/PLAY_LOG.md`는 이벤트 이름과 필드의 원본이다. 분석 서버 측 이름과 어긋나면 양쪽을 함께 고친다.
+- 유니티 템플릿으로 배포할 때 `unity templates create`만 쓰면 저장소 루트 문서가 빠진다. `Tools/MyJG/Build Template Package`로 `ProjectData~`에 AGENTS.md·Docs를 주입해 만들고, 루트에 문서를 추가하면 `TemplatePackTool.ROOT_ITEMS`에도 더한다(`Docs/TEMPLATE.md`).
 
 ## 커밋
 - 커밋 전: ① 코드 정리(`Ctrl+K, R`) ② 컴파일 경고 확인(`Tools/MyJG/Validate Project`) ③ 테이블을 건드린 경우 표·씬 값 같이 수정.
