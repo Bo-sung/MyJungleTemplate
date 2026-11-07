@@ -51,7 +51,7 @@ public sealed class ScenePool : MonoBehaviour
         }
     }
 
-    readonly Dictionary<int, LentRef> lent = new();    // 대여 중인 오브젝트(instanceID → 참조)
+    readonly Dictionary<EntityId, LentRef> lent = new();    // 대여 중인 오브젝트(EntityId → 참조)
     Transform poolRoot;
     bool prepared;
 
@@ -143,7 +143,7 @@ public sealed class ScenePool : MonoBehaviour
         {
             instance = Create(bucket);
         }
-        lent[instance.GetInstanceID()] = new LentRef(instance, bucket);
+        lent[instance.GetEntityId()] = new LentRef(instance, bucket);
         bucket.rented++;
         return instance;
     }
@@ -160,7 +160,7 @@ public sealed class ScenePool : MonoBehaviour
         {
             return;
         }
-        int id = _instance.GetInstanceID();
+        EntityId id = _instance.GetEntityId();
         if (!lent.TryGetValue(id, out var lentRef))
         {
             Debug.LogWarning($"이 풀에서 대여하지 않은 오브젝트입니다: {_instance.name}", this);
@@ -177,7 +177,7 @@ public sealed class ScenePool : MonoBehaviour
     // 판 초기화: 대여 중인 것을 모두 반납한다(대기열까지 Destroy하지 않고 끈다).
     public void ReturnAll()
     {
-        foreach (var pair in new List<KeyValuePair<int, LentRef>>(lent))
+        foreach (var pair in new List<KeyValuePair<EntityId, LentRef>>(lent))
         {
             if (pair.Value.instance)
             {

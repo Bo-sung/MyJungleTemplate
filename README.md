@@ -26,7 +26,7 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 5. 분석 서버가 있으면 `Docs/PLAY_LOG.md`의 이벤트 이름을 서버 측과 맞춘다. 분석 파일의 전송·수집은 별도 작업이라 필요하면 직접 붙인다(`Docs/TELEMETRY.md`).
 
 ## 검증 · 미정
-- 검증: 23개 스크립트를 Unity 6000.3.22f1 어셈블리 참조로 Roslyn 컴파일 확인(에디터 / 플레이어 / 개발 빌드 3경우 모두 오류 없음). Play Mode 실행 확인은 하지 않았다(사용자 담당). LogKit git 패키지는 packages-lock.json에 resolved.
+- 검증: 23개 스크립트를 Unity 6000.3.22f1 어셈블리 참조로 Roslyn 컴파일 확인(에디터 / 플레이어 / 개발 빌드 3경우 모두 오류 없음). Play Mode 실행 확인은 하지 않았다(사용자 담당). LogKit git 패키지는 packages-lock.json에 resolved. 6000.6.8f1 참조로도 같은 소스가 에디터·플레이어 설정에서 오류 없이 컴파일되는 것을 확인했다.
 - Preload·Title·Game 씬은 텍스트로 생성했다(SceneRoots까지 포함한 unity YAML). 에디터에서 처음 열 때 정상 뜨는지 확인이 필요하고, Game은 기존 URP 샘플 씬의 카메라·Directional Light·Global Volume을 그대로 들였다.
 - 템플릿 동작 확인: `unity templates create`는 ProjectData~에 Assets·Packages·ProjectSettings·Library만 담아 루트 문서가 빠지지만, ProjectData~에 넣은 루트 파일은 새 프로젝트 루트에 그대로 복사되는 것을 Probe 프로젝트로 확인했다(`Docs/TEMPLATE.md`). 생성 도구는 `TemplatePackTool`.
 - 코딩 스타일: 전 스크립트를 AGENTS 규칙(Allman, 파라미터 `_` 접두사, const UPPER_SNAKE, 한 줄 블록 금지)에 맞게 일괄 정리했다. 리터럴 문자열 안 텍스트와 이벤트/직렬화 필드 이름은 바꾸지 않았다.
@@ -35,3 +35,10 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 - 오디오·저장·씬 로더(페이드) 공용 서비스는 없다. 게임이 정하면 테이블 4계층 규약으로 수치를 옮긴다.
 - 테스트 asmdef가 없어 EditMode/PlayMode Test Runner 항목은 비어 있다. 테스트가 필요해지면 asmdef 예외를 만들지 정한다.
 - LogKit 수신 서버와 환경변수는 이 PC에서 확인하지 않았다. 빌드 시 값이 없으면 LogKit 빌드 단계가 실패한다(`LOGKIT_OPTIONAL=1`로 로컬 우회).
+
+## 유니티 버전
+
+- 6000.3.22f1과 6000.6.8f1를 같은 코드로 쓴다. 6.6 라인은 `MyJGTemplate_66` 사본의 `unity-6.6` 브랜치.
+- 오브젝트 식별은 `EntityId`(`GetEntityId()`). `Object.GetInstanceID()`는 6.6에서 사용 금지(CS0619)다. 공용 API가 Deprecated되면 양쪽 버전에 통하는 대체를 고르고 버전 분기는 마지막 수단으로 쓴다.
+- 템플릿 아카이브의 `unity` 필드는 포장한 에디터 버전이지만 등록 폴더는 패키지 id당 하나다. 두 유니티 버전의 템플릿을 나란히 등록하려면 패키지 id를 갈라야 한다.
+- 6.6은 `SmokeCheck`의 `DEVELOPMENT_BUILD` 지시어에 폐기 예정 경고(UAC0009)를 낸다. "개발 빌트에만 포함"의 범위를 정해 대체 지시어로 바꾼다.
