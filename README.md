@@ -40,5 +40,5 @@ Unity 6(URP) 프로젝트 시작 템플릿. 게임 콘텐츠 없고, 검증된 �
 
 - 6000.3.22f1과 6000.6.8f1를 같은 코드로 쓴다. 6.6 라인은 `MyJGTemplate_66` 사본의 `unity-6.6` 브랜치.
 - 오브젝트 식별은 `EntityId`(`GetEntityId()`). `Object.GetInstanceID()`는 6.6에서 사용 금지(CS0619)다. 공용 API가 Deprecated되면 양쪽 버전에 통하는 대체를 고르고 버전 분기는 마지막 수단으로 쓴다.
-- 템플릿 아카이브의 `unity` 필드는 포장한 에디터 버전이지만 등록 폴더는 패키지 id당 하나다. 두 유니티 버전의 템플릿을 나란히 등록하려면 패키지 id를 갈라야 한다.
+- 템플릿 id는 유니티 버전별로 갈린다(`com.myjg.template.myjg.u63`·`.u66`). 등록 폴더가 id당 하나라 같은 id로 두 버전을 만들면 나중에 만든 쪽이 덮어쓴다(`Docs/TEMPLATE.md`).
 - 6.6은 `SmokeCheck`의 `DEVELOPMENT_BUILD` 지시어에 폐기 예정 경고(UAC0009)를 낸다. "개발 빌트에만 포함"의 범위를 정해 대체 지시어로 바꾼다.

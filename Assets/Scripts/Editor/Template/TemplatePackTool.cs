@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -12,10 +13,28 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 // 이 도구는 그 파일들을 ProjectData~에 넣아 다시 싼다. ProjectData~의 내용은 새 프로젝트 루트에 그대로 복사된다.
 public static class TemplatePackTool
 {
-    public const string TEMPLATE_ID = "com.myjg.template.myjg";
-    public const string TEMPLATE_DISPLAY_NAME = "MyJG Template";
+    // 템플릿 등록 폴더는 패키지 id당 하나다. 같은 id로 다른 유니티 버전의 템플릿을 만들면
+    // 나중에 만든 쪽이 아카이브를 덮어쓴다. 그래서 id에 에디터 버전을 넣어 갈아 놓는다.
+    public const string TEMPLATE_ID_BASE = "com.myjg.template.myjg";
     public const string TEMPLATE_VERSION = "0.1.0";
     public const string TOOLS_MENU = "Tools/MyJG/Build Template Package";
+
+    // 이 프로젝트의 에디터 버전이 쓰는 id와 표시 이름.
+    public static string TemplateId
+    {
+        get
+        {
+            return TEMPLATE_ID_BASE + "." + UnitySlug(Application.unityVersion);
+        }
+    }
+
+    public static string TemplateDisplayName
+    {
+        get
+        {
+            return "MyJG Template (Unity " + UnityShortVersion(Application.unityVersion) + ")";
+        }
+    }
 
     // 새 프로젝트 루트로 옮겨야 하는 저장소 루트 항목. 템플릿 골격이 자기 설명서를 잃지 않게 한다.
     static readonly string[] ROOT_ITEMS =
@@ -35,8 +54,8 @@ public static class TemplatePackTool
         }
 
         // CLI가 직접 사용자 템플릿 폴더에 쓰게 하면 Hub/CLI 목록에 바로 등록된다.
-        int code = Run(cli, "templates create \"" + projectRoot + "\" --name " + TEMPLATE_ID
-            + " --display-name \"" + TEMPLATE_DISPLAY_NAME + "\" --version " + TEMPLATE_VERSION
+        int code = Run(cli, "templates create \"" + projectRoot + "\" --name " + TemplateId
+            + " --display-name \"" + TemplateDisplayName + "\" --version " + TEMPLATE_VERSION
             + " --keep-project-settings --overwrite --non-interactive", out string output);
         if (code != 0)
         {
@@ -58,8 +77,9 @@ public static class TemplatePackTool
         }
 
         Debug.Log("템플릿 준비 완료: " + archive + "\n"
+            + "id: " + TemplateId + " / " + Application.unityVersion + "\n"
             + "새 프로젝트 만들기: unity projects create <이름> --editor-version " + Application.unityVersion
-            + " --template " + TEMPLATE_ID + "\n"
+            + " --template " + TemplateId + "\n"
             + "확인: unity templates --editor-version " + Application.unityVersion + " (CUSTOM / ready)");
         EditorUtility.RevealInFinder(archive);
     }
@@ -69,7 +89,7 @@ public static class TemplatePackTool
     {
         Debug.Log("저장소 루트 파일이 새 프로젝트에 전달되는지 확인하는 방법:\n"
             + "  1) " + TOOLS_MENU + " 실행\n"
-            + "  2) unity projects create Probe --path <빈 폴더> --editor-version " + Application.unityVersion + " --template " + TEMPLATE_ID + " --no-cloud\n"
+            + "  2) unity projects create Probe --path <빈 폴더> --editor-version " + Application.unityVersion + " --template " + TemplateId + " --no-cloud\n"
             + "  3) 생성된 프로젝트 루트에 AGENTS.md·Docs가 있는지 확인");
     }
 
@@ -204,8 +224,48 @@ public static class TemplatePackTool
 
     static string ManualCommands(string _projectRoot)
     {
-        return "직접 실행: unity templates create \"" + _projectRoot + "\" --name " + TEMPLATE_ID
+        return "직접 실행: unity templates create \"" + _projectRoot + "\" --name " + TemplateId
             + " --keep-project-settings --overwrite";
+    }
+
+    // "6000.6.8f1" -> "u66"(6000 = 6, 마이너 6), "7000.0.0a12" -> "u70". 패키지 이름은 소문자와 숫자만 쓸 수 있다.
+    static string UnitySlug(string _version)
+    {
+        if (VersionParts(_version, out int major, out int minor))
+        {
+            return "u" + (major / 1000) + minor;
+        }
+        var slug = new StringBuilder("u");
+        foreach (char c in _version ?? string.Empty)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                slug.Append(char.ToLowerInvariant(c));
+            }
+        }
+        return slug.ToString();
+    }
+
+    static string UnityShortVersion(string _version)
+    {
+        if (VersionParts(_version, out int major, out int minor))
+        {
+            return (major / 1000) + "." + minor;
+        }
+        return _version;
+    }
+
+    // "6000.6.8f1" -> 메이저 6000, 마이너 6. 읽지 못하면 false.
+    static bool VersionParts(string _version, out int _major, out int _minor)
+    {
+        _major = 0;
+        _minor = 0;
+        string[] parts = (_version ?? string.Empty).Split('.');
+        if (parts.Length < 2)
+        {
+            return false;
+        }
+        return int.TryParse(parts[0], out _major) && int.TryParse(parts[1], out _minor);
     }
 
     static int Run(string _fileName, string _arguments, out string _output)

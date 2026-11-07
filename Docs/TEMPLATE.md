@@ -15,9 +15,20 @@
 
 포함할 루트 항목은 `TemplatePackTool.ROOT_ITEMS`가 원본이다. 문서를 추가하면 이 목록에도 반영한다.
 
+### 유니티 버전별 id
+
+등록 폴더가 패키지 id당 하나(`Unity user templates\<slug>`)라 같은 id로 다른 유니티 버전의 템플릿을 만들면 나중에 만든 쪽이 아카이브를 덮어쓴다. 그래서 id를 버전별로 갈린다(`TemplatePackTool.TemplateId`).
+
+| 에디터 버전 | 패키지 id | 등록 폴더 |
+| --- | --- | --- |
+| 6000.3.22f1 | `com.myjg.template.myjg.u63` | `commyjgtemplatemyjgu63` |
+| 6000.6.8f1 | `com.myjg.template.myjg.u66` | `commyjgtemplatemyjgu66` |
+
+슬러그는 `u` + (메이저/1000) + 마이너(`u66`, `7000.0`이면 `u70`)이고, 표시 이름도 `MyJG Template (Unity 6.6)`처럼 버전이 붙는다. Hub는 `unity` 필드 때문에 그 이상의 버전에서만 템플릿을 보여주므로(`unity templates --editor-version <v>`로 확인), 사본이 여러 유니티 버전에서 만들어질 때는 가장 낮은 버전까지 포함해 id를 정리한다.
+
 ### 수동으로 할 때
 ```
-unity templates create "<프로젝트 경로>" --name com.myjg.template.myjg --display-name "MyJG Template" --version 0.1.0 --keep-project-settings --overwrite
+unity templates create "<프로젝트 경로>" --name com.myjg.template.myjg.u66 --display-name "MyJG Template (Unity 6.6)" --version 0.1.0 --keep-project-settings --overwrite
 tar xzf "<tgz>" -C "<빈 폴더>"
 # package/ProjectData~/ 에 위 루트 항목 복사
 tar czf "<tgz>" -C "<빈 폴더>" package
@@ -26,14 +37,14 @@ tar czf "<tgz>" -C "<빈 폴더>" package
 
 ## 확인
 ```
-unity templates --editor-version 6000.3.22f1
-unity projects create Probe --path "<빈 폴더>" --editor-version 6000.3.22f1 --template com.myjg.template.myjg --no-cloud
+unity templates --editor-version 6000.6.8f1
+unity projects create Probe --path "<빈 폴더>" --editor-version 6000.6.8f1 --template com.myjg.template.myjg.u66 --no-cloud
 ```
-- `unity templates` 목록에 `com.myjg.template.myjg`이 CUSTOM / ready로 뜨는지
+- `unity templates` 목록에 `com.myjg.template.myjg.u66`이 CUSTOM / ready로 뜨는지
 - 생성된 프로젝트 루트에 `AGENTS.md`·`Docs`가 있는지
 - `Assets/Scenes`에 Preload·Title·Game, `Assets/Resources/Tables` 두 개, `Packages/manifest.json`의 LogKit git 의존성이 유지되는지
 
 ## 참고
 - 사용자 템플릿 저장 위치: `%USERPROFILE%\Unity user templates\<slug>`(slug는 패키지 이름에서 점을 뺀 형태). `unity templates location`으로 확인·변경한다.
 - 아카이브에 `Library`가 들어가 첫 임포트가 빠르지만 크기가 60MB 정도 나온다.
-- 템플릿 id·version을 올리면 아카이브를 다시 만들어 등록해야 한다.
+- 템플릿 id·version을 올리면 아카이브를 다시 만들어 등록해야 한다. id가 바뀐 예전 아카이브는 `unity templates delete --id <id>`로 정리한다.
